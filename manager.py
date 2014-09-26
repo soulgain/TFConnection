@@ -57,7 +57,7 @@ def readStationList():
 	bundle = plistlib.readPlist('./StationList.plist')
 	stations = bundle['stations']
 
-	return stations[:count]
+	return stations
 
 
 if __name__ == '__main__':
