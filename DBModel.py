@@ -39,24 +39,43 @@ def readFromPlist():
 	return stations[:30]
 
 
+class TrainConnectionRecord(mongoengine.Document):
+	fromStationCode = mongoengine.StringField(required = True)
+	toStationCode = mongoengine.StringField(required = True)
+	paths = mongoengine.ListField(required = True)
+
+	'''
+		compare two path
+		actually there are two lists of string
+	'''
+	@staticmethod
+	def comparePath(path1, path2):
+		if len(path1) != len(path2):
+			return False
+
+		for x in xrange(0, len(path1)):
+			if path1[x] != path2[x]:
+				return False
+
+		return True
+
+
+	def put(self):
+		recordSet = TrainConnectionRecord.objects(fromStationCode=self.fromStationCode, toStationCode=self.toStationCode)
+
+		if recordSet.count() > 0:
+			record = recordSet.first()
+			paths = record['paths']
+
+			for path in paths:
+				if TrainConnectionRecord.comparePath(path, self.paths[0]):
+					return
+
+			record.paths.append(self.paths[0])
+			record.save()
+		else:
+			self.save()
+
+
 if __name__ == '__main__':
-	mongoengine.connect('train')
-	
-	stations = readFromPlist()
-
-	for fromStation in stations:
-		for toStation in stations:
-			if fromStation == toStation:
-				continue
-
-			try:
-				ret = api.TrainQuery(fromStationCode=fromStation['code'], toStationCode=toStation['code']).query().json()['data']
-
-				if len(ret) > 0:
-					for trainDTO in ret:
-						trainDTO = trainDTO['queryLeftNewDTO']
-						record = TrainRecord()
-						record.parse(trainDTO)
-						record.put()
-			except Exception as e:
-				print(e)
+	pass
