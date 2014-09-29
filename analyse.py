@@ -34,6 +34,10 @@ def connection_between(fromStationCode, toStationCode):
 	cursor1 = TrainRecord.objects(__raw__={'fromStationCode':fromStationCode})
 	cursor2 = TrainRecord.objects(__raw__={'toStationCode':toStationCode})
 
+	tcr = TrainConnectionRecord()
+	tcr.fromStationCode = fromStationCode
+	tcr.toStationCode = toStationCode
+
 	for train1 in cursor1:
 		for train2 in cursor2:
 			if train1['toStationCode'] == train2['fromStationCode']:
@@ -41,11 +45,16 @@ def connection_between(fromStationCode, toStationCode):
 				# 	getStationByCode(train1['toStationCode'])+'->'+
 				# 	getStationByCode(train2['toStationCode']))
 
-				tcr = TrainConnectionRecord()
-				tcr.fromStationCode = fromStationCode
-				tcr.toStationCode = toStationCode
-				tcr.paths = [[train1['toStationCode']]]
-				tcr.put()
+				has = False
+				for path in tcr.paths:
+					if path[0] == train1['toStationCode']:
+						has = True
+						break
+				if not has:
+					tcr.paths.append([train1['toStationCode']])
+
+	if len(tcr.paths) > 0:	
+		tcr.put()
 
 
 def getStationByCode(stationCode):

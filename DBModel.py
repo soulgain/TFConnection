@@ -65,13 +65,8 @@ class TrainConnectionRecord(mongoengine.Document):
 
 		if recordSet.count() > 0:
 			record = recordSet.first()
-			paths = record['paths']
 
-			for path in paths:
-				if TrainConnectionRecord.comparePath(path, self.paths[0]):
-					return
-
-			record.paths.append(self.paths[0])
+			record.paths = self.paths
 			record.save()
 		else:
 			self.save()
