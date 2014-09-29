@@ -28,6 +28,9 @@ class TrainRecord(mongoengine.Document):
 		if not recordSet.count():
 			self.save()
 
+	def __repr__(self):
+		return self.fromStationCode+'->'+self.toStationCode+' '+self.trainno
+
 
 '''
 	read stations from a plist file
