@@ -74,6 +74,9 @@ class TrainConnectionRecord(mongoengine.Document):
 		else:
 			self.save()
 
+	def __repr__(self):
+		return self.fromStationCode+'->'+self.toStationCode+'\n'+str(self.paths)
+
 
 if __name__ == '__main__':
 	pass
