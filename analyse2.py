@@ -9,6 +9,10 @@ import timeit
 import plistlib
 import cPickle as pickle
 import os
+import sys
+import threading
+import Queue
+from table import Table
 
 
 mongoengine.connect('train', host='192.168.2.1')
@@ -16,35 +20,11 @@ mongoengine.connect('train', host='192.168.2.1')
 stations = plistlib.readPlist('./StationList.plist')['stations'][:]
 cache_code_to_index = {}
 row_and_colum = len(stations)
-table = []
-# table += '0'*row_and_colum*row_and_colum
+table = Table(row_and_colum, row_and_colum)
+
 
 for index, value in enumerate(stations):
 	cache_code_to_index[value['code']] = index
-
-
-def table_get(row, col):
-	global table
-
-	return table[row*row_and_colum+col]
-
-
-def table_set(row, col, value):
-	global table
-
-	table[row*row_and_colum+col] = value
-
-
-def table_get_row(row):
-	global table
-
-	return [table[index] for index in xrange(row*row_and_colum, row*row_and_colum+row_and_colum)]
-
-
-def table_get_col(col):
-	global table
-
-	return [table[index] for index in xrange(col, col+row_and_colum*row_and_colum, row_and_colum)]
 
 
 def init_table():
@@ -82,21 +62,19 @@ def table_dump():
 	global table
 
 	with open('./table', 'w') as file:
-		pickle.dump(table, file)
+		table.dump(file)
 
 
 def table_load():
 	global table
 
 	if os.path.isfile('./table'):
-		print('loading from file...')
+		print('Loading from file...')
 		with open('./table', 'r') as file:
 			try:
-				table = pickle.load(file)
+				table.load(file)
 			except Exception, e:
 				print(e)
-
-	print('table load from file: '+str(len(table)))
 
 
 def main():
