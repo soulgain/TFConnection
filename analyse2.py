@@ -151,4 +151,15 @@ if __name__ == '__main__':
 	# timeit.timeit("connection_between('AAX', 'BJP')", number=100, setup="from __main__ import connection_between")
 
 	# print connection_between('AAX', 'BJP')
-	main()
+	# main()
+	manager = Manager(worker_num=10)
+
+	for fromStation in stations[:]:
+		for toStation in stations:
+			if fromStation['code'] != toStation['code']:
+				task = (fromStation['code'], toStation['code'])
+				manager.tasks.put(task)
+			else:
+				continue
+
+	manager.dispatch()
