@@ -97,6 +97,52 @@ def main():
 				tcr.put()
 
 
+class Analyser(threading.Thread):
+	def __init__(self, taskQueue):
+		threading.Thread.__init__(self)
+		self.taskQueue = taskQueue
+
+	def run(self):
+		while True:
+			try:
+				fromStationCode, toStationCode = self.taskQueue.get(False)
+				print('connection analysing: '+fromStationCode+'->'+toStationCode+' remain: '+str(self.taskQueue.qsize()))
+
+				r = connection_between(fromStationCode, toStationCode)
+
+				if r == None or len(r) == 0:
+					print('direct: '+fromStationCode+'->'+toStationCode)
+				else:
+					paths = [[path] for path in r]
+					tcr = TrainConnectionRecord()
+					tcr.fromStationCode = fromStationCode
+					tcr.toStationCode = toStationCode
+					tcr.paths = paths
+					tcr.put()
+			except Queue.Empty as e:
+				print(e)
+				break
+			else:
+				continue
+
+
+class Manager(object):
+	def __init__(self, worker_num=1):
+		self.worker_num = worker_num;
+		self.tasks = Queue.Queue()
+
+	def dispatch(self):
+		threads = []
+
+		for x in xrange(0, self.worker_num):
+			analyser = Analyser(self.tasks)
+			analyser.start()
+			threads.append(analyser)
+
+		for analyser in threads:
+			analyser.join()
+
+
 if __name__ == '__main__':
 	# init_table()
 	# table_dump()
