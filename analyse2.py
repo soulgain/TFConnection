@@ -52,7 +52,7 @@ def connection_between(fromStationCode, toStationCode):
 	res = []
 
 	for x in xrange(row_and_colum):
-		if listFrom[x] == '1' and listTo[x] == '1':
+		if listFrom[x] != None and listTo[x] != None:
 			res.append(stations[x]['code'])
 
 	return res
