@@ -17,20 +17,26 @@ stationCache = {}
 
 for _,station in enumerate(stations):
 	stationCode = station['code']
+	stationName = station['name']
 	stationCache[stationCode] = station
+	stationCache[stationName] = station
 
 
-def findStationByCode(stationCode):
+def findStationByCodeOrName(stationCodeOrName):
 	global stationCache
-	return stationCache[stationCode]
+	return stationCache[stationCodeOrName]
 
 
 @app.route('/connection')
 def connect():
 	global stations
 
-	fromStationCode = request.args.get('from', '')
-	toStationCode = request.args.get('to', '')
+	fromStation = request.args.get('from', '')
+	toStation = request.args.get('to', '')
+
+	fromStationCode = findStationByCodeOrName(fromStation)['code']
+	toStationCode = findStationByCodeOrName(toStation)['code']
+
 	connection_set = DBModel.TrainConnectionRecord.objects(__raw__={'fromStationCode':fromStationCode, 'toStationCode':toStationCode})
 
 	if connection_set.count() == 0:
@@ -41,7 +47,7 @@ def connect():
 
 		for _, path in enumerate(paths):
 			for index, stationCode in enumerate(path):
-				station = findStationByCode(stationCode)
+				station = findStationByCodeOrName(stationCode)
 				path[index] = station['name']
 
 		return json.dumps({'paths':paths}, ensure_ascii=False)
