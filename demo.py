@@ -50,7 +50,7 @@ def connect():
 				station = findStationByCodeOrName(stationCode)
 				path[index] = station['name']
 
-		return '<html><body><pre>'+json.dumps({'paths':paths}, ensure_ascii=False, indent=4)+'</pre></body></html>'
+		return '<pre>'+json.dumps({'paths':paths}, ensure_ascii=False, indent=4)+'</pre>'
 
 
 if __name__ == '__main__':
