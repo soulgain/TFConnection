@@ -66,7 +66,18 @@ def connectionByCount():
 
 	connection_set = DBModel.TrainConnectionRecord.objects(paths__size=20).skip(skip).limit(limit)
 
-	return '<pre>'+json.dumps(json.loads(connection_set.to_json()), indent=1)+'</pre>'
+	tmp = json.loads(connection_set.to_json())
+
+	for connectionRecord in tmp:
+		paths = connectionRecord['paths']
+
+		for _, path in enumerate(paths):
+			for index, stationCode in enumerate(path):
+				station = findStationByCodeOrName(stationCode)
+				path[index] = station['name']
+				print(station['name'])
+
+	return '<pre>'+json.dumps(tmp, indent=2, ensure_ascii=False)+'</pre>'
 
 
 if __name__ == '__main__':
