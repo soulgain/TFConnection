@@ -75,7 +75,6 @@ def connectionByCount():
 			for index, stationCode in enumerate(path):
 				station = findStationByCodeOrName(stationCode)
 				path[index] = station['name']
-				print(station['name'])
 
 	return '<pre>'+json.dumps(tmp, indent=2, ensure_ascii=False)+'</pre>'
 
