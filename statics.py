@@ -47,5 +47,12 @@ def statics_path_count():
 		pickle.dump(result, file)
 
 
+def show_statics_path_count():
+	with open('result', 'r') as file:
+		result = pickle.load(file)
+
+	print result
+
 if __name__ == '__main__':
 	statics_path_count()
+	show_statics_path_count()
