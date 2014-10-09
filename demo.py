@@ -52,6 +52,22 @@ def connect():
 
 		return '<pre>'+json.dumps({'paths':paths}, ensure_ascii=False, indent=2)+'</pre>'
 
+@app.route('/connectionByCount')
+def connectionByCount():
+	count = request.args.get('count', None)
+	skip = request.args.get('skip', 0)
+	limit = request.args.get('limit', 10)
+
+	skip = int(skip)
+	limit = int(limit)
+
+	if not count:
+		return
+
+	connection_set = DBModel.TrainConnectionRecord.objects(paths__size=20).skip(skip).limit(limit)
+
+	return '<pre>'+json.dumps(json.loads(connection_set.to_json()), indent=1)+'</pre>'
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
