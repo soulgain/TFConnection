@@ -6,9 +6,10 @@ import plistlib
 from DBModel import TrainRecord
 from DBModel import TrainConnectionRecord
 import timeit
+from config import config
 
 
-mongoengine.connect(db='train', host='127.0.0.1')
+mongoengine.connect(db='train', host=config['db_host'])
 stations = plistlib.readPlist('./StationList.plist')['stations']
 
 

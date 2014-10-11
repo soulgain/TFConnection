@@ -13,9 +13,10 @@ import sys
 import threading
 import Queue
 from table import Table
+from config import config
 
 
-mongoengine.connect('train', host='192.168.2.1')
+mongoengine.connect('train', host=config['host'])
 
 stations = plistlib.readPlist('./StationList.plist')['stations'][:]
 cache_code_to_index = {}

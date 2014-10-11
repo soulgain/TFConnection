@@ -11,9 +11,10 @@ import os
 import sys
 import plistlib
 import json
+from config import config
 
 
-mongoengine.connect(host='192.168.2.1', db='train')
+mongoengine.connect(host=config['db_host'], db='train')
 stations = plistlib.readPlist('StationList.plist')['stations']
 
 
