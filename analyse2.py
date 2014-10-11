@@ -78,26 +78,6 @@ def table_load():
 				print(e)
 
 
-def main():
-	for fromStation in stations[445:]:
-		for toStation in stations:
-			if fromStation['code'] == toStation['code']:
-				continue
-
-			print('connection analysing: '+fromStation['code']+'->'+toStation['code'])
-			r = connection_between(fromStation['code'], toStation['code'])
-
-			if r == None or len(r) == 0:
-				print('direct: '+fromStation['code']+'->'+toStation['code'])
-			else:
-				paths = [[path] for path in r]
-				tcr = TrainConnectionRecord()
-				tcr.fromStationCode = fromStation['code']
-				tcr.toStationCode = toStation['code']
-				tcr.paths = paths
-				tcr.put()
-
-
 class Analyser(threading.Thread):
 	def __init__(self, taskQueue):
 		threading.Thread.__init__(self)
@@ -152,7 +132,6 @@ if __name__ == '__main__':
 	# timeit.timeit("connection_between('AAX', 'BJP')", number=100, setup="from __main__ import connection_between")
 
 	# print connection_between('AAX', 'BJP')
-	# main()
 	manager = Manager(worker_num=10)
 
 	for fromStation in stations[:]:
