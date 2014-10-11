@@ -54,7 +54,7 @@ class Manager(object):
 		
 
 def readStationList():
-	bundle = plistlib.readPlist('./StationList.plist')
+	bundle = plistlib.readPlist('StationList.plist')
 	stations = bundle['stations']
 
 	return stations

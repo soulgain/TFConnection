@@ -10,7 +10,7 @@ from config import config
 
 
 mongoengine.connect(db='train', host=config['db_host'])
-stations = plistlib.readPlist('./StationList.plist')['stations']
+stations = plistlib.readPlist('StationList.plist')['stations']
 
 
 def main():

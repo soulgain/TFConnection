@@ -18,7 +18,7 @@ from config import config
 
 mongoengine.connect('train', host=config['host'])
 
-stations = plistlib.readPlist('./StationList.plist')['stations'][:]
+stations = plistlib.readPlist('StationList.plist')['stations'][:]
 cache_code_to_index = {}
 row_and_colum = len(stations)
 table = Table(row_and_colum, row_and_colum)
@@ -62,16 +62,16 @@ def connection_between(fromStationCode, toStationCode):
 def table_dump():
 	global table
 
-	with open('./table', 'w') as file:
+	with open('table', 'w') as file:
 		table.dump(file)
 
 
 def table_load():
 	global table
 
-	if os.path.isfile('./table'):
+	if os.path.isfile('table'):
 		print('Loading from file...')
-		with open('./table', 'r') as file:
+		with open('table', 'r') as file:
 			try:
 				table.load(file)
 			except Exception, e:

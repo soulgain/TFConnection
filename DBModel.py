@@ -36,10 +36,10 @@ class TrainRecord(mongoengine.Document):
 	read stations from a plist file
 '''
 def readFromPlist():
-	bundle = plistlib.readPlist('./StationList.plist')
+	bundle = plistlib.readPlist('StationList.plist')
 	stations = bundle['stations']
 
-	return stations[:30]
+	return stations
 
 
 class TrainConnectionRecord(mongoengine.Document):
