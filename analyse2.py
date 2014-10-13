@@ -69,6 +69,7 @@ def connection_between(fromStationCode, toStationCode):
 
 		if arr and dep:
 			if len(arr) == 1 and len(dep) == 1:
+				# 避免K123 -> K123 这样的转车
 				if arr[0] != dep[0]:
 					res.append(stations[x]['code'])
 			else:
