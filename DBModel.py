@@ -7,6 +7,33 @@ import api
 import plistlib
 
 
+class Path(object):
+	"""
+		arrTrains: 到达中转站可选车次数量
+		depTrains: 从中转站出发可选车次数量
+		connectStationCode: 中转站点code
+	"""
+	def __init__(self, arrTrains=None, depTrains=None, connectStationCode=None):
+		self.arrTrains = arrTrains
+		self.depTrains = depTrains
+		self.connectStationCode = connectStationCode
+
+	def __eq__(self, other):
+		if self.connectStationCode != other.connectStationCode:
+			return False
+
+		if self.arrTrains != other.arrTrains:
+			return False
+
+		if self.depTrains != other.depTrains:
+			return False
+
+		return True
+
+	def __ne__(self, other):
+		return not self.__eq__(self, other)
+
+
 class TrainRecord(mongoengine.Document):
 	trainno = mongoengine.StringField(required = True)
 	trainid = mongoengine.StringField(required = True)
@@ -46,21 +73,6 @@ class TrainConnectionRecord(mongoengine.Document):
 	fromStationCode = mongoengine.StringField(required = True)
 	toStationCode = mongoengine.StringField(required = True)
 	paths = mongoengine.ListField(required = True)
-
-	'''
-		compare two path
-		actually there are two lists of string
-	'''
-	@staticmethod
-	def comparePath(path1, path2):
-		if len(path1) != len(path2):
-			return False
-
-		for x in xrange(0, len(path1)):
-			if path1[x] != path2[x]:
-				return False
-
-		return True
 
 
 	def put(self):
