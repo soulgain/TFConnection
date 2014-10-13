@@ -5,6 +5,7 @@ import pymongo
 import mongoengine
 from DBModel import TrainRecord
 from DBModel import TrainConnectionRecord
+from DBModel import Path
 import timeit
 import plistlib
 import cPickle as pickle
@@ -71,9 +72,11 @@ def connection_between(fromStationCode, toStationCode):
 			if len(arr) == 1 and len(dep) == 1:
 				# 避免K123 -> K123 这样的转车
 				if arr[0] != dep[0]:
-					res.append(stations[x]['code'])
+					path = Path(arrTrains=len(arr), depTrains=len(dep), connectStationCode=stations[x]['code'])
+					res.append(path)
 			else:
-				res.append(stations[x]['code'])
+				path = Path(arrTrains=len(arr), depTrains=len(dep), connectStationCode=stations[x]['code'])
+				res.append(path)
 
 	return res
 
@@ -111,9 +114,10 @@ class Analyser(threading.Thread):
 				r = connection_between(fromStationCode, toStationCode)
 
 				if r == None or len(r) == 0:
-					print('direct: '+fromStationCode+'->'+toStationCode)
+					pass
+					# print('direct: '+fromStationCode+'->'+toStationCode)
 				else:
-					paths = [[path] for path in r]
+					paths = [[path.toDict()] for path in r]
 					tcr = TrainConnectionRecord()
 					tcr.fromStationCode = fromStationCode
 					tcr.toStationCode = toStationCode
