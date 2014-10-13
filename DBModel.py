@@ -18,6 +18,11 @@ class Path(object):
 		self.depTrains = depTrains
 		self.connectStationCode = connectStationCode
 
+	def toDict(self):
+		return {'connectStationCode': self.connectStationCode,
+				'arrTrains': self.arrTrains,
+				'depTrains': self.depTrains}
+
 	def __eq__(self, other):
 		if self.connectStationCode != other.connectStationCode:
 			return False
@@ -32,6 +37,9 @@ class Path(object):
 
 	def __ne__(self, other):
 		return not self.__eq__(self, other)
+
+	def __repr__(self):
+		return str(self.arrTrains)+'|'+self.connectStationCode+'|'+str(self.depTrains)
 
 
 class TrainRecord(mongoengine.Document):
