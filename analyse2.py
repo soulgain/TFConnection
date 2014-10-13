@@ -29,32 +29,50 @@ for index, value in enumerate(stations):
 
 
 def init_table():
+	global table
+
 	for index, station in enumerate(stations):
 		set = TrainRecord.objects(fromStationCode=station['code'])
 
+		tmp = {}
 		for train in set:
 			toStationCode = train['toStationCode']
+			if not toStationCode in tmp:
+				tmp[toStationCode] = {}
+
+			tmp[toStationCode][train['trainno']] = 1
+
+		for toStationCode in tmp:
 			if toStationCode in cache_code_to_index:
-				table_set(index, cache_code_to_index[toStationCode], '1')
+				table.set(index, cache_code_to_index[toStationCode], tmp[toStationCode].keys())
 
 
 def connection_between(fromStationCode, toStationCode):
 	global cache_code_to_index
+	global table
 
 	fromIndex = cache_code_to_index[fromStationCode]
 	toIndex = cache_code_to_index[toStationCode]
 
-	if table_get(fromIndex, toIndex) == '1':
-		return
+	# check if there is a direct line
+	# if table.get(fromIndex, toIndex):
+	# 	return
 
-	listFrom = table_get_row(fromIndex)
-	listTo = table_get_col(toIndex)
+	listFrom = table.get_row(fromIndex)
+	listTo = table.get_col(toIndex)
 
 	res = []
 
 	for x in xrange(row_and_colum):
-		if listFrom[x] != None and listTo[x] != None:
-			res.append(stations[x]['code'])
+		arr = listFrom[x]
+		dep = listTo[x]
+
+		if arr and dep:
+			if len(arr) == 1 and len(dep) == 1:
+				if arr[0] != dep[0]:
+					res.append(stations[x]['code'])
+			else:
+				res.append(stations[x]['code'])
 
 	return res
 
