@@ -12,7 +12,7 @@ from config import config
 
 
 app = Flask(__name__)
-mongoengine.connect(host=config['host'], db='train')
+mongoengine.connect(host=config['db_host'], db='train')
 stations = plistlib.readPlist('StationList.plist')['stations']
 stationCache = {}
 

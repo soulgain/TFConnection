@@ -16,7 +16,7 @@ from table import Table
 from config import config
 
 
-mongoengine.connect('train', host=config['host'])
+mongoengine.connect('train', host=config['db_host'])
 
 stations = plistlib.readPlist('StationList.plist')['stations'][:]
 cache_code_to_index = {}
