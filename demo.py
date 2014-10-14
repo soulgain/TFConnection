@@ -53,8 +53,7 @@ def connect():
 				path[index] = {"desc": desc}
 				arrTrains = DBModel.TrainRecord.objects(fromStationCode=fromStationCode, toStationCode=station['code'])
 				depTrains = DBModel.TrainRecord.objects(fromStationCode=station['code'], toStationCode=toStationCode)
-				print(arrTrains.first()['trainno'])
-				print(depTrains.first()['trainno'])
+
 				for arrTrain in arrTrains:
 					for depTrain in depTrains:
 						if arrTrain['trainno'] == depTrain['trainno']:
