@@ -47,9 +47,21 @@ def connect():
 		paths = connectionRecord.paths
 
 		for _, path in enumerate(paths):
-			for index, stationCode in enumerate(path):
-				station = findStationByCodeOrName(stationCode)
-				path[index] = station['name']
+			for index, connectStation in enumerate(path):
+				station = findStationByCodeOrName(connectStation['connectStationCode'])
+				desc = str(connectStation['arrTrains'])+'|'+station['name']+'|'+str(connectStation['depTrains'])
+				path[index] = {"desc": desc}
+				arrTrains = DBModel.TrainRecord.objects(fromStationCode=fromStationCode, toStationCode=station['code'])
+				depTrains = DBModel.TrainRecord.objects(fromStationCode=station['code'], toStationCode=toStationCode)
+				print(arrTrains.first()['trainno'])
+				print(depTrains.first()['trainno'])
+				for arrTrain in arrTrains:
+					for depTrain in depTrains:
+						if arrTrain['trainno'] == depTrain['trainno']:
+							path[index]['direct'] = True
+							break
+					if path[index].has_key('direct'):
+						break
 
 		return '<pre>'+json.dumps({'paths':paths}, ensure_ascii=False, indent=2)+'</pre>'
 
