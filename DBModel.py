@@ -91,6 +91,11 @@ class TrainConnectionRecord(mongoengine.Document):
 
 			record.paths = self.paths
 			record.save()
+
+			# delete other record
+			if recordSet.count() > 1:
+				for record in recordSet[1:]:
+					record.delete()
 		else:
 			self.save()
 
