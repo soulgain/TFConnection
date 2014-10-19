@@ -60,7 +60,7 @@ class StationManager(object):
 
     def findNearStations(self, mainStationCode=None):
         if not mainStationCode in self._mainStationCache:
-            return
+            return []
 
         return self._mainStationCache[mainStationCode]
 
