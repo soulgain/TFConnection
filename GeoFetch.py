@@ -4,6 +4,9 @@
 import requests
 import json
 import sys
+import Queue
+from threading import Thread as Thread
+import cPickle as pickle
 
 
 BAIDU_AK = u'6d39dda6cfdf731a8e3e1c2c20c85648'
@@ -38,10 +41,49 @@ class StationGeoFetcher(object):
 
             if location and 'lat' in location and 'lng' in location:
                 station['location'] = location
+            else:
+                print(name)
+
+
+def dispatch(stations, worker=4):
+    queueList = []
+    total = len(stations)
+    part = total/(worker-1)
+
+    for i in xrange(worker):
+        tasks = []
+
+        for j in xrange(i*part, (i+1)*part):
+            if j < len(stations):
+                tasks.append(stations[j])
+            else:
+                break
+
+        queueList.append(tasks)
+
+    threads = []
+    for tasks in queueList:
+        thread = Thread(target=StationGeoFetcher.fetchFromList, args=(tasks,))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+
+def print_locations(stations):
+    for station in stations:
+        if 'location' in station:
+            print(station['name']+str(station['location']))
+        else:
+            print(station['name']+'no location data!')
 
 
 import plistlib
 if __name__ == '__main__':
-    stations = plistlib.readPlist('StationList.plist')['stations'][:10]
-    StationGeoFetcher.fetchFromList(stations)
-    print(stations)
+    stations = plistlib.readPlist('StationList.plist')['stations'][:]
+    # StationGeoFetcher.fetchFromList(stations)
+    dispatch(stations, worker=20)
+    # print_locations(stations)
+    with open('stationWithGeo.pickle', 'w') as f:
+        pickle.dump(stations, f)
