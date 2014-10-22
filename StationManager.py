@@ -120,7 +120,7 @@ if __name__ == '__main__':
     mainstation_list = []
 
     for station in m.stations:
-        if 'mainStation' in station:
+        if 'mainStationCode' in station:
             mainstation_list.append(station)
 
     print('there are '+ str(len(mainstation_list)) +' main-stations')

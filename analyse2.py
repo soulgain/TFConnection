@@ -12,8 +12,10 @@ import cPickle as pickle
 import os
 import sys
 from threading import Thread as Thread
+# from threading import Thread as Thread
+# from Queue import Queue
 from multiprocessing import Process as Thread
-import Queue
+from multiprocessing import Queue
 from table import Table
 from config import config
 from StationManager import StationManager
@@ -176,7 +178,7 @@ class Analyser(Thread):
 class Manager(object):
     def __init__(self, worker_num=1):
         self.worker_num = worker_num;
-        self.tasks = Queue.Queue()
+        self.tasks = Queue()
 
     def dispatch(self):
         threads = []
