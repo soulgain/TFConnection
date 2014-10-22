@@ -154,8 +154,8 @@ class Analyser(Thread):
     def run(self):
         while True:
             try:
-                fromStationCode, toStationCode = self.taskQueue.get(False)
-                print('connection analysing: '+fromStationCode+'->'+toStationCode+' remain: '+str(self.taskQueue.qsize()))
+                fromStationCode, toStationCode = self.taskQueue.get(timeout=5)
+                # print('connection analysing: '+fromStationCode+'->'+toStationCode+' remain: '+str(self.taskQueue.qsize()))
 
                 r = connection_between(fromStationCode, toStationCode)
 
