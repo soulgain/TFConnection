@@ -180,17 +180,22 @@ class Manager(object):
     def __init__(self, worker_num=1):
         self.worker_num = worker_num;
         self.tasks = Queue()
+        self.threads = []
 
     def dispatch(self):
-        threads = []
-
         for x in xrange(0, self.worker_num):
-            analyser = Analyser(self.tasks)
-            analyser.start()
-            threads.append(analyser)
+            thread = Analyser(self.tasks)
+            self.threads.append(thread)
 
-        for analyser in threads:
-            analyser.join()
+        for thread in self.threads:
+            thread.start()
+
+    def put(self, task):
+        self.tasks.put(task)
+
+    def join_all(self):
+        for thread in self.threads:
+            thread.join()
 
 
 if __name__ == '__main__':
@@ -202,14 +207,15 @@ if __name__ == '__main__':
     # timeit.timeit("connection_between('AAX', 'BJP')", number=100, setup="from __main__ import connection_between")
 
     # print connection_between('AAX', 'BJP')
-    manager = Manager(worker_num=30)
+    manager = Manager(worker_num=4)
+    manager.dispatch()
 
     for fromStation in stations[:10]:
         for toStation in stations:
             if fromStation['code'] != toStation['code']:
                 task = (fromStation['code'], toStation['code'])
-                manager.tasks.put(task)
+                manager.put(task)
             else:
                 continue
 
-    manager.dispatch()
+    manager.join_all()
