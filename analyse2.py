@@ -11,7 +11,7 @@ import plistlib
 import cPickle as pickle
 import os
 import sys
-import threading
+from threading import Thread as Thread
 import Queue
 from table import Table
 from config import config
@@ -121,9 +121,9 @@ def table_load():
                 print(e)
 
 
-class Analyser(threading.Thread):
+class Analyser(Thread):
     def __init__(self, taskQueue):
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
         self.taskQueue = taskQueue
 
     def run(self):
