@@ -14,6 +14,7 @@ import sys
 from threading import Thread as Thread
 # from threading import Thread as Thread
 # from Queue import Queue
+from Queue import Empty
 from multiprocessing import Process as Thread
 from multiprocessing import Queue
 from table import Table
@@ -168,7 +169,7 @@ class Analyser(Thread):
                     tcr.toStationCode = toStationCode
                     tcr.paths = paths
                     tcr.put()
-            except Queue.Empty as e:
+            except Empty as e:
                 print(e)
                 break
             else:
