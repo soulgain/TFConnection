@@ -104,7 +104,7 @@ def connection_between(fromStationCode, toStationCode):
                 path = Path(arrTrains=len(arr), depTrains=len(dep), connectStationCode=stations[x]['code'])
                 res.append(path)
 
-                fromStaion = stationManager.findStation(code=fromStationCode)
+                fromStation = stationManager.findStation(code=fromStationCode)
                 toStation = stationManager.findStation(code=toStationCode)
                 midStation = stations[x]
                 locationKey = 'location'
