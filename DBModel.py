@@ -12,16 +12,19 @@ class Path(object):
 		arrTrains: 到达中转站可选车次数量
 		depTrains: 从中转站出发可选车次数量
 		connectStationCode: 中转站点code
+		distanceFactor:
 	"""
-	def __init__(self, arrTrains=None, depTrains=None, connectStationCode=None):
+	def __init__(self, arrTrains=None, depTrains=None, connectStationCode=None, distanceFactor=0.0):
 		self.arrTrains = arrTrains
 		self.depTrains = depTrains
 		self.connectStationCode = connectStationCode
+		self.distanceFactor = distanceFactor
 
 	def toDict(self):
 		return {'connectStationCode': self.connectStationCode,
 				'arrTrains': self.arrTrains,
-				'depTrains': self.depTrains}
+				'depTrains': self.depTrains,
+                'distanceFactor': self.distanceFactor}
 
 	def __eq__(self, other):
 		if self.connectStationCode != other.connectStationCode:
