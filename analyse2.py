@@ -12,16 +12,18 @@ import cPickle as pickle
 import os
 import sys
 from threading import Thread as Thread
+from multiprocessing import Process as Thread
 import Queue
 from table import Table
 from config import config
 from StationManager import StationManager
+from distanceCalc import calcu_distance
 
 
 mongoengine.connect('train', host=config['db_host'])
 
 stationManager = StationManager()
-stationManager.load()
+stationManager.load(fpath='stationWithGeo.pickle')
 
 stations = []
 for station in stationManager.stations:
@@ -98,6 +100,26 @@ def connection_between(fromStationCode, toStationCode):
             else:
                 path = Path(arrTrains=len(arr), depTrains=len(dep), connectStationCode=stations[x]['code'])
                 res.append(path)
+
+                fromStaion = stationManager.findStation(code=fromStationCode)
+                toStation = stationManager.findStation(code=toStationCode)
+                midStation = stations[x]
+                locationKey = 'location'
+
+                if locationKey in fromStation and locationKey in toStation:
+                    try:
+                        fromLocation = fromStation[locationKey]
+                        toLocation = toStation[locationKey]
+                        midLocation = midStation[locationKey]
+
+                        origin_dist = calcu_distance(fromLocation, toLocation)
+                        connection_dist = calcu_distance(fromLocation, midLocation)+\
+                            calcu_distance(midLocation, toLocation)
+                        path.distanceFactor = connection_dist/origin_dist
+
+                    except Exception as e:
+                        print(e)
+
 
     return res
 
