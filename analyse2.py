@@ -210,7 +210,17 @@ if __name__ == '__main__':
     manager = Manager(worker_num=4)
     manager.dispatch()
 
-    for fromStation in stations[:10]:
+    def resume(code=None):
+        global stations
+
+        if not code:
+            return stations
+
+        for index, station in enumerate(stations):
+            if station['code'] == code:
+                return stations[index-1:]
+
+    for fromStation in resume():
         for toStation in stations:
             if fromStation['code'] != toStation['code']:
                 task = (fromStation['code'], toStation['code'])
