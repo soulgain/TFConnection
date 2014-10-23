@@ -7,13 +7,15 @@ from flask import request
 import DBModel
 import json
 import mongoengine
-import plistlib
+from StationManager import StationManager
 from config import config
 
 
 app = Flask(__name__)
 mongoengine.connect(host=config['db_host'], db='train')
-stations = plistlib.readPlist('StationList.plist')['stations']
+stationManager = StationManager()
+stationManager.load('stationWithGeo.pickle')
+stations = stationManager.stations
 stationCache = {}
 
 for _,station in enumerate(stations):
@@ -49,7 +51,7 @@ def connect():
 		for _, path in enumerate(paths):
 			for index, connectStation in enumerate(path):
 				station = findStationByCodeOrName(connectStation['connectStationCode'])
-				desc = str(connectStation['arrTrains'])+'|'+station['name']+'|'+str(connectStation['depTrains'])
+				desc = '|'.join([str(connectStation['arrTrains']), station['name'], str(connectStation['depTrains']), str(connectStation['distanceFactor'])[:4]])
 				path[index] = {"desc": desc}
 				arrTrains = DBModel.TrainRecord.objects(fromStationCode=fromStationCode, toStationCode=station['code'])
 				depTrains = DBModel.TrainRecord.objects(fromStationCode=station['code'], toStationCode=toStationCode)
