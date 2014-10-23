@@ -199,10 +199,10 @@ class Manager(object):
 
 
 if __name__ == '__main__':
-    init_table()
+    # init_table()
     # table_dump()
-    # table_load()
-    sys.exit(0)
+    table_load()
+    # sys.exit(0)
 
     # timeit.timeit("connection_between('AAX', 'BJP')", number=100, setup="from __main__ import connection_between")
 
