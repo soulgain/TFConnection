@@ -14,6 +14,7 @@ import sys
 from threading import Thread as Thread
 # from threading import Thread as Thread
 # from Queue import Queue
+from Queue import Empty
 from multiprocessing import Process as Thread
 from multiprocessing import Queue
 from table import Table
@@ -103,7 +104,7 @@ def connection_between(fromStationCode, toStationCode):
                 path = Path(arrTrains=len(arr), depTrains=len(dep), connectStationCode=stations[x]['code'])
                 res.append(path)
 
-                fromStaion = stationManager.findStation(code=fromStationCode)
+                fromStation = stationManager.findStation(code=fromStationCode)
                 toStation = stationManager.findStation(code=toStationCode)
                 midStation = stations[x]
                 locationKey = 'location'
@@ -153,8 +154,8 @@ class Analyser(Thread):
     def run(self):
         while True:
             try:
-                fromStationCode, toStationCode = self.taskQueue.get(False)
-                print('connection analysing: '+fromStationCode+'->'+toStationCode+' remain: '+str(self.taskQueue.qsize()))
+                fromStationCode, toStationCode = self.taskQueue.get(timeout=5)
+                # print('connection analysing: '+fromStationCode+'->'+toStationCode+' remain: '+str(self.taskQueue.qsize()))
 
                 r = connection_between(fromStationCode, toStationCode)
 
@@ -168,7 +169,7 @@ class Analyser(Thread):
                     tcr.toStationCode = toStationCode
                     tcr.paths = paths
                     tcr.put()
-            except Queue.Empty as e:
+            except Empty as e:
                 print(e)
                 break
             else:
@@ -179,17 +180,22 @@ class Manager(object):
     def __init__(self, worker_num=1):
         self.worker_num = worker_num;
         self.tasks = Queue()
+        self.threads = []
 
     def dispatch(self):
-        threads = []
-
         for x in xrange(0, self.worker_num):
-            analyser = Analyser(self.tasks)
-            analyser.start()
-            threads.append(analyser)
+            thread = Analyser(self.tasks)
+            self.threads.append(thread)
 
-        for analyser in threads:
-            analyser.join()
+        for thread in self.threads:
+            thread.start()
+
+    def put(self, task):
+        self.tasks.put(task)
+
+    def join_all(self):
+        for thread in self.threads:
+            thread.join()
 
 
 if __name__ == '__main__':
@@ -201,14 +207,15 @@ if __name__ == '__main__':
     # timeit.timeit("connection_between('AAX', 'BJP')", number=100, setup="from __main__ import connection_between")
 
     # print connection_between('AAX', 'BJP')
-    manager = Manager(worker_num=30)
+    manager = Manager(worker_num=4)
+    manager.dispatch()
 
     for fromStation in stations[:10]:
         for toStation in stations:
             if fromStation['code'] != toStation['code']:
                 task = (fromStation['code'], toStation['code'])
-                manager.tasks.put(task)
+                manager.put(task)
             else:
                 continue
 
-    manager.dispatch()
+    manager.join_all()
