@@ -30,7 +30,7 @@ stationManager.load(fpath='stationWithGeo.pickle')
 
 stations = []
 for station in stationManager.stations:
-    if not 'mainStationCode' in station:
+    if 'mainStationCode' in station and station['code'] == station['mainStationCode']:
         stations.append(station)
 
 cache_code_to_index = {}
