@@ -63,7 +63,7 @@ class StationManager(object):
             station_dict['isPopStation'] = True
             station_dict['name'] = station.find('n').text
             station_dict['pinyin'] = station.find('py').text
-            station_dict['mainStation'] = station.find('o').text
+            station_dict['mainStationCode'] = station.find('o').text
 
             tmp[station_dict['code']] = station_dict
 
@@ -75,7 +75,7 @@ class StationManager(object):
             station_dict['isPopStation'] = False
             station_dict['name'] = station.find('n').text
             station_dict['pinyin'] = station.find('py').text
-            station_dict['mainStation'] = station.find('o').text
+            station_dict['mainStationCode'] = station.find('o').text
 
             tmp[station_dict['code']] = station_dict
 
