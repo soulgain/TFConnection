@@ -24,7 +24,7 @@ class StationGeoFetcher(object):
 
         r = None
         try:
-            r = json.loads(requests.get(BAIDU_URL%(station+u'站', BAIDU_AK), timeout=10).content)
+            r = json.loads(requests.get(BAIDU_URL%(station+u'站', BAIDU_AK), timeout=20).content)
         except Exception as e:
             print(station+':\n'+repr(e))
             return
