@@ -37,8 +37,17 @@ def connect():
 	fromStation = request.args.get('from', '')
 	toStation = request.args.get('to', '')
 
-	fromStationCode = findStationByCodeOrName(fromStation)['code']
-	toStationCode = findStationByCodeOrName(toStation)['code']
+	fromStation = findStationByCodeOrName(fromStation)
+	toStation = findStationByCodeOrName(toStation)
+
+	fromStationCode = fromStation['code']
+	toStationCode = toStation['code']
+
+	if 'mainStation' in fromStation:
+		fromStationCode = fromStation['mainStation']
+
+	if 'mainStation' in toStation:
+		toStationCode = toStation['mainStation']
 
 	connection_set = DBModel.TrainConnectionRecord.objects(__raw__={'fromStationCode':fromStationCode, 'toStationCode':toStationCode})
 
@@ -47,24 +56,31 @@ def connect():
 	else:
 		connectionRecord = connection_set.first()
 		paths = connectionRecord.paths
+		res = []
 
 		for _, path in enumerate(paths):
 			for index, connectStation in enumerate(path):
+				if connectStation['distanceFactor'] > 1.5:
+					continue
+
 				station = findStationByCodeOrName(connectStation['connectStationCode'])
-				desc = '|'.join([str(connectStation['arrTrains']), station['name'], str(connectStation['depTrains']), str(connectStation['distanceFactor'])[:4]])
-				path[index] = {"desc": desc}
-				arrTrains = DBModel.TrainRecord.objects(fromStationCode=fromStationCode, toStationCode=station['code'])
-				depTrains = DBModel.TrainRecord.objects(fromStationCode=station['code'], toStationCode=toStationCode)
+				desc = {'arrTrains': connectStation['arrTrains'],
+						'depTrains': connectStation['depTrains'],
+						'station': station['name'],
+						'distanceFactor': connectStation['distanceFactor']}
+				res.append(desc)
+				# desc = '|'.join([str(connectStation['arrTrains']), station['name'], str(connectStation['depTrains']), str(connectStation['distanceFactor'])[:4]])
+				# path[index] = {"desc": desc}
 
-				for arrTrain in arrTrains:
-					for depTrain in depTrains:
-						if arrTrain['trainno'] == depTrain['trainno']:
-							path[index]['direct'] = True
-							break
-					if path[index].has_key('direct'):
-						break
+		def cmp(p1, p2):
+			if (p1['arrTrains']+p1['depTrains']) - (p2['arrTrains']+p2['depTrains'])> 0:
+				return -1
+			else:
+				return 1
 
-		return '<pre>'+json.dumps({'paths':paths}, ensure_ascii=False, indent=2)+'</pre>'
+		res.sort(cmp=cmp)
+
+		return '<pre>'+json.dumps({'paths':res}, ensure_ascii=False, indent=2)+'</pre>'
 
 @app.route('/connectionByCount')
 def connectionByCount():
@@ -96,4 +112,4 @@ def connectionByCount():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+	app.run(host='0.0.0.0', debug=True)
