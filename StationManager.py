@@ -57,7 +57,7 @@ class StationManager(object):
 
         for station in poplist.findall('s'):
             station_dict = {}
-            station_dict['code'] = station.find('n').text
+            station_dict['code'] = station.find('c').text
             station_dict['firstLetter'] = station.find('jp').text
             station_dict['hotIndex'] = 1
             station_dict['isPopStation'] = True
@@ -69,7 +69,7 @@ class StationManager(object):
 
         for station in stationlist.findall('s'):
             station_dict = {}
-            station_dict['code'] = station.find('n').text
+            station_dict['code'] = station.find('c').text
             station_dict['firstLetter'] = station.find('jp').text
             station_dict['hotIndex'] = -1
             station_dict['isPopStation'] = False
