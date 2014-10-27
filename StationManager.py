@@ -4,6 +4,7 @@
 
 import plistlib
 import cPickle as pickle
+import xml.etree.ElementTree as xml
 
 
 class StationManager(object):
@@ -34,9 +35,51 @@ class StationManager(object):
             if not station['code'] in nearStations:
                 nearStations.append(station['code'])
 
+    def _importFromPickle(self, fpath='stationList.pickle'):
+        with open(fpath, 'r') as fp:
+            stations = pickle.load(fp)
+            self.stations = stations
+        self._buildCache()
 
     def _importStationlistFromPlist(self, fpath = 'StationList.plist'):
         self.stations = plistlib.readPlist(fpath)['stations']
+        self._buildCache()
+
+    def _importFromGTGJ(self, fpath='gtgj_stations.xml'):
+        tree = None
+
+        with open(fpath, 'r') as fp:
+            tree = xml.parse(fp)
+
+        poplist = tree.getroot().find('bd').find('poplist')
+        stationlist = tree.getroot().find('bd').find('stationlist')
+        tmp = {}
+
+        for station in poplist.findall('s'):
+            station_dict = {}
+            station_dict['code'] = station.find('n').text
+            station_dict['firstLetter'] = station.find('jp').text
+            station_dict['hotIndex'] = 1
+            station_dict['isPopStation'] = True
+            station_dict['name'] = station.find('n').text
+            station_dict['pinyin'] = station.find('py').text
+            station_dict['mainStationCode'] = station.find('o').text
+
+            tmp[station_dict['code']] = station_dict
+
+        for station in stationlist.findall('s'):
+            station_dict = {}
+            station_dict['code'] = station.find('n').text
+            station_dict['firstLetter'] = station.find('jp').text
+            station_dict['hotIndex'] = -1
+            station_dict['isPopStation'] = False
+            station_dict['name'] = station.find('n').text
+            station_dict['pinyin'] = station.find('py').text
+            station_dict['mainStationCode'] = station.find('o').text
+
+            tmp[station_dict['code']] = station_dict
+
+        self.stations = tmp.values()
         self._buildCache()
 
     def findStation(self, code=None, name=None):
@@ -98,23 +141,18 @@ class StationManager(object):
             with open(fpath, 'w') as fp:
                 pickle.dump(self.stations, fp)
 
-    def load(self, fpath='stationList.pickle', use_pickle=True):
-        if not use_pickle:
-            self._importStationlistFromPlist(fpath)
-            return
-
-        with open(fpath, 'r') as fp:
-            stations = pickle.load(fp)
-
-        if len(stations):
-            self.stations = stations
-
-        self._buildCache()
+    def load(self, fpath=None, use_plist=False, use_gtgj=False):
+        if use_plist:
+            self._importStationlistFromPlist(fpath or 'StationList.plist')
+        elif use_gtgj:
+            self._importFromGTGJ(fpath or 'gtgj_stations.xml')
+        else:
+            self._importFromPickle(fpath or 'stationWithGeo.pickle')
 
 
 if __name__ == '__main__':
     m = StationManager()
-    m.load('stationList.pickle', use_pickle=True)
+    m.load()
     print('there are '+str(len(m.stations))+' stations')
     # m.generate()
     mainstation_list = []
