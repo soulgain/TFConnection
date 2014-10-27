@@ -7,7 +7,7 @@ import sys
 import Queue
 from threading import Thread as Thread
 import cPickle as pickle
-
+from StationManager import StationManager
 
 BAIDU_AK = u'6d39dda6cfdf731a8e3e1c2c20c85648'
 BAIDU_URL = u'http://api.map.baidu.com/geocoder/v2/?address=%s&output=json&ak=%s'
@@ -79,9 +79,10 @@ def print_locations(stations):
             print(station['name']+'no location data!')
 
 
-import plistlib
 if __name__ == '__main__':
-    stations = plistlib.readPlist('StationList.plist')['stations'][:]
+    m = StationManager()
+    m.load(use_gtgj=True)
+    stations = m.stations
     # StationGeoFetcher.fetchFromList(stations)
     dispatch(stations, worker=20)
     # print_locations(stations)
