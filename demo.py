@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 #coding=utf-8
 
+import flask
 from flask import Flask
 from flask import request
 from flask import make_response
+from flask_compress import Compress
 
 import DBModel
 import json
@@ -13,6 +15,8 @@ from config import config
 
 
 app = Flask(__name__)
+Compress().init_app(app)
+app.COMPRESS_DEBUG = True
 mongoengine.connect(host=config['db_host'], db='train')
 stationManager = StationManager()
 stationManager.load('stationWithGeo.pickle')
@@ -35,8 +39,8 @@ def findStationByCodeOrName(stationCodeOrName):
 
 def make_json_response(object):
 	s = json.dumps(object, ensure_ascii=False, indent=2)
-	resp = make_response(s)
-	resp.headers['Content-Type'] = 'application/json'
+	resp = flask.Response(response=s, mimetype='application/json')
+	# resp.headers['Content-Type'] = 'application/json'
 	return resp
 
 
