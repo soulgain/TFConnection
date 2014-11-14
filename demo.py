@@ -16,7 +16,7 @@ from config import config
 
 app = Flask(__name__)
 Compress().init_app(app)
-#app.COMPRESS_DEBUG = True
+app.config['COMPRESS_DEBUG'] = True
 mongoengine.connect(host=config['db_host'], db='train')
 stationManager = StationManager()
 stationManager.load('stationWithGeo.pickle')
