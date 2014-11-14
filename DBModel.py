@@ -84,7 +84,7 @@ class TrainConnectionRecord(mongoengine.Document):
 	fromStationCode = mongoengine.StringField(required = True)
 	toStationCode = mongoengine.StringField(required = True)
 	paths = mongoengine.ListField(required = True)
-	meta = {'collection': 'TrainConnectionRecord3'}
+	meta = {'collection': 'TrainConnectionRecord'}
 
 
 	def put(self):
