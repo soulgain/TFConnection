@@ -3,6 +3,7 @@
 
 from flask import Flask
 from flask import request
+from flask import make_response
 
 import DBModel
 import json
@@ -28,6 +29,12 @@ for _,station in enumerate(stations):
 def findStationByCodeOrName(stationCodeOrName):
 	global stationCache
 	return stationCache[stationCodeOrName]
+
+
+def make_json_response(s):
+	resp = make_response(s)
+	resp.headers['Content-Type'] = 'application/json'
+	return resp
 
 
 @app.route('/connection')
@@ -79,8 +86,7 @@ def connect():
 				return 1
 
 		res.sort(cmp=cmp)
-
-		return '<pre>'+json.dumps({'paths':res}, ensure_ascii=False, indent=2)+'</pre>'
+		return make_json_response(json.dumps({'paths':res}, ensure_ascii=False, indent=2))
 
 @app.route('/connectionByCount')
 def connectionByCount():
@@ -108,7 +114,7 @@ def connectionByCount():
 				station = findStationByCodeOrName(stationCode)
 				path[index] = station['name']
 
-	return '<pre>'+json.dumps(tmp, indent=2, ensure_ascii=False)+'</pre>'
+	return make_json_response(json.dumps(tmp, indent=2, ensure_ascii=False))
 
 
 if __name__ == '__main__':
