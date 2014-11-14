@@ -28,10 +28,13 @@ for _,station in enumerate(stations):
 
 def findStationByCodeOrName(stationCodeOrName):
 	global stationCache
-	return stationCache[stationCodeOrName]
+
+	if stationCodeOrName in stationCache:
+		return stationCache[stationCodeOrName]
 
 
-def make_json_response(s):
+def make_json_response(object):
+	s = json.dumps(object, ensure_ascii=False, indent=2)
 	resp = make_response(s)
 	resp.headers['Content-Type'] = 'application/json'
 	return resp
@@ -47,6 +50,9 @@ def connect():
 	fromStation = findStationByCodeOrName(fromStation)
 	toStation = findStationByCodeOrName(toStation)
 
+	if not (fromStation and toStation):
+		return make_json_response({'paths':[]})
+
 	fromStationCode = fromStation['code']
 	toStationCode = toStation['code']
 
@@ -58,12 +64,10 @@ def connect():
 
 	connection_set = DBModel.TrainConnectionRecord.objects(__raw__={'fromStationCode':fromStationCode, 'toStationCode':toStationCode})
 
-	if connection_set.count() == 0:
-		return ''
-	else:
+	res = []
+	if connection_set.count():
 		connectionRecord = connection_set.first()
 		paths = connectionRecord.paths
-		res = []
 
 		for _, path in enumerate(paths):
 			for index, connectStation in enumerate(path):
@@ -86,7 +90,8 @@ def connect():
 				return 1
 
 		res.sort(cmp=cmp)
-		return make_json_response(json.dumps({'paths':res}, ensure_ascii=False, indent=2))
+
+	return make_json_response({'paths':res})
 
 @app.route('/connectionByCount')
 def connectionByCount():
@@ -114,7 +119,7 @@ def connectionByCount():
 				station = findStationByCodeOrName(stationCode)
 				path[index] = station['name']
 
-	return make_json_response(json.dumps(tmp, indent=2, ensure_ascii=False))
+	return make_json_response(tmp)
 
 
 if __name__ == '__main__':
