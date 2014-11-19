@@ -82,6 +82,7 @@ def connect():
 				desc = {'arrTrains': connectStation['arrTrains'],
 						'depTrains': connectStation['depTrains'],
 						'station': station['name'],
+                        'stationCode': station['code'],
 						'distanceFactor': connectStation['distanceFactor']}
 				res.append(desc)
 				# desc = '|'.join([str(connectStation['arrTrains']), station['name'], str(connectStation['depTrains']), str(connectStation['distanceFactor'])[:4]])
