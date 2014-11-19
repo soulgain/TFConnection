@@ -39,7 +39,7 @@ def findStationByCodeOrName(stationCodeOrName):
 
 def make_json_response(object):
 	s = json.dumps(object, ensure_ascii=False, indent=2)
-	resp = flask.Response(response=s, mimetype='application/json')
+	resp = flask.Response(response=s, mimetype='application/json; charset=utf-8')
 	# resp.headers['Content-Type'] = 'application/json'
 	return resp
 
