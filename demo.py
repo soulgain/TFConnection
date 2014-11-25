@@ -6,6 +6,8 @@ from flask import Flask
 from flask import request
 from flask import make_response
 from flask_compress import Compress
+from base64 import b64encode
+from Crypto.Cipher import AES
 
 import DBModel
 import json
@@ -37,8 +39,26 @@ def findStationByCodeOrName(stationCodeOrName):
 		return stationCache[stationCodeOrName]
 
 
-def make_json_response(object):
+def make_json_response(object, encrypt=True):
 	s = json.dumps(object, ensure_ascii=False, indent=2)
+
+	if encrypt:
+		key = config['cypher']
+		paddingLen = 16-len(key)
+		padding_map = ('\x00','\x01','\x02','\x03','\x04','\x05','\x06','\x07','\x08','\x09','\x0a','\x0b','\x0c','\x0d','\x0e','\x0f', '\x10')
+
+		key = key + padding_map[paddingLen]*paddingLen
+
+		def AESEncypt(key, dat):
+			en = AES.new(key)
+			out = en.encrypt(dat)
+			return out
+
+		padding = 16-len(s)%16
+		if padding > 0:
+			s += padding_map[padding] * padding
+		s = b64encode(AESEncypt(key, s))
+
 	resp = flask.Response(response=s, mimetype='application/json; charset=utf-8')
 	# resp.headers['Content-Type'] = 'application/json'
 	return resp
