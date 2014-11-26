@@ -51,7 +51,7 @@ def make_json_response(object, encrypt=True):
 
 		def AESEncypt(key, dat):
 			en = AES.new(key)
-			out = en.encrypt(dat)
+			out = en.encrypt(dat.encode('utf-8'))
 			return out
 
 		padding = 16-len(s)%16
@@ -70,12 +70,14 @@ def connect():
 
 	fromStation = request.args.get('from', '')
 	toStation = request.args.get('to', '')
+	encrypt = request.args.get('encrypt', 1)
+	encrypt = int(encrypt)
 
 	fromStation = findStationByCodeOrName(fromStation)
 	toStation = findStationByCodeOrName(toStation)
 
 	if not (fromStation and toStation):
-		return make_json_response({'paths':[]})
+		return make_json_response({'paths':[]}, encrypt)
 
 	fromStationCode = fromStation['code']
 	toStationCode = toStation['code']
@@ -116,7 +118,7 @@ def connect():
 
 		res.sort(cmp=cmp)
 
-	return make_json_response({'paths':res})
+	return make_json_response({'paths':res}, encrypt)
 
 @app.route('/connectionByCount')
 def connectionByCount():
