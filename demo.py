@@ -51,9 +51,10 @@ def make_json_response(object, encrypt=True):
 
 		def AESEncypt(key, dat):
 			en = AES.new(key)
-			out = en.encrypt(dat.encode('utf-8'))
+			out = en.encrypt(dat)
 			return out
 
+		s = s.encode('utf-8')
 		padding = 16-len(s)%16
 		if padding > 0:
 			s += padding_map[padding] * padding
