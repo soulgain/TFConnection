@@ -5,17 +5,20 @@ from DBModel import TrainConnectionRecord
 from StationManager import StationManager
 import json
 from distanceCalc import calcu_distance
+import mongoengine
+from config import config
 
 
 stationManager = StationManager()
 stationManager.load()
 
-
 def distance_between(station1, station2):
 	return calcu_distance(station1['location'], station2['location'])
 
 
-def main():
+def updateFactor():
+	mongoengine.connect('train', host=config['db_host'])
+
 	recordSet = TrainConnectionRecord.objects()
 
 	for connection in recordSet:
@@ -23,13 +26,23 @@ def main():
 		toStation = stationManager.findStation(code=connection.toStationCode)
 		dis = distance_between(fromStation, toStation)
 
+		needUpdate = False
+
 		for path in connection.paths:
-			connectionStation = stationManager.findStation(code=path.connectStationCode)
+			path = path[0]
+			connectionStation = stationManager.findStation(code=path['connectStationCode'])
 			dis2 = distance_between(fromStation, connectionStation)+distance_between(connectionStation, toStation)
 			factor = float(dis2)/dis
-			path.distanceFactor = factor
 
-		connection.save()
+			if path['distanceFactor'] != factor:
+				print('%s -> %s -> %s, factor: %f -> %f'%
+					  (connection.fromStationCode, connectionStation['code'], connection.toStationCode,
+					   path['distanceFactor'], factor))
+				path['distanceFactor'] = factor
+				needUpdate = True
+
+		if needUpdate:
+			connection.save()
 
 
 def mergeGEOData():
@@ -62,5 +75,5 @@ def mergeGEOData():
 		json.dump(stations, file)
 
 if __name__ == '__main__':
-	mergeGEOData()
-	# main()
+	# mergeGEOData()
+	updateFactor()
