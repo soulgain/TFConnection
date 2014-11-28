@@ -13,7 +13,10 @@ stationManager = StationManager()
 stationManager.load()
 
 def distance_between(station1, station2):
-	return calcu_distance(station1['location'], station2['location'])
+	location_key = 'location'
+
+	if location_key in station1 and location_key in station2:
+		return calcu_distance(station1['location'], station2['location'])
 
 
 def updateFactor():
@@ -26,12 +29,22 @@ def updateFactor():
 		toStation = stationManager.findStation(code=connection.toStationCode)
 		dis = distance_between(fromStation, toStation)
 
+		if not dis:
+			continue
+
 		needUpdate = False
 
 		for path in connection.paths:
 			path = path[0]
 			connectionStation = stationManager.findStation(code=path['connectStationCode'])
-			dis2 = distance_between(fromStation, connectionStation)+distance_between(connectionStation, toStation)
+			dis_a = distance_between(fromStation, connectionStation)
+			dis_b = distance_between(connectionStation, toStation)
+
+			if not (dis_a and dis_b):
+				continue
+
+			dis2 = dis_a+ dis_b
+
 			factor = float(dis2)/dis
 
 			if path['distanceFactor'] != factor:
