@@ -4,10 +4,15 @@
 from DBModel import TrainConnectionRecord
 from StationManager import StationManager
 import json
+from distanceCalc import calcu_distance
 
 
 stationManager = StationManager()
 stationManager.load()
+
+
+def distance_between(station1, station2):
+	return calcu_distance(station1['location'], station2['location'])
 
 
 def main():
@@ -16,6 +21,15 @@ def main():
 	for connection in recordSet:
 		fromStation = stationManager.findStation(code=connection.fromStationCode)
 		toStation = stationManager.findStation(code=connection.toStationCode)
+		dis = distance_between(fromStation, toStation)
+
+		for path in connection.paths:
+			connectionStation = stationManager.findStation(code=path.connectStationCode)
+			dis2 = distance_between(fromStation, connectionStation)+distance_between(connectionStation, toStation)
+			factor = float(dis2)/dis
+			path.distanceFactor = factor
+
+		connection.save()
 
 
 def mergeGEOData():
