@@ -31,7 +31,7 @@ def updateFactor(fromStationCode=None, toStationCode=None):
 	if toStationCode:
 		queryDict['toStationCode'] = toStationCode
 
-	recordSet = TrainConnectionRecord.objects(__raw__=queryDict)
+	recordSet = TrainConnectionRecord.objects(__raw__=queryDict).no_cache().timeout(False)
 
 	for connection in recordSet:
 		fromStation = stationManager.findStation(code=connection.fromStationCode)
