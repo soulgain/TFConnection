@@ -35,7 +35,7 @@ class TrainQuery(object):
 		try:
 			headers = {'Accept-Encoding': 'gzip,deflate,sdch'}
 			print(queryStr)
-			r = requests.get(queryStr, verify=False, headers = headers)
+			r = requests.get(queryStr, verify=False, headers=headers, timeout=30)
 			r = r.json()['data']['datas']
 
 			return r
