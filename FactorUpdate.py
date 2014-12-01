@@ -21,10 +21,17 @@ def distance_between(station1, station2):
 		return
 
 
-def updateFactor():
+def updateFactor(fromStationCode=None, toStationCode=None):
 	mongoengine.connect('train', host=config['db_host'])
 
-	recordSet = TrainConnectionRecord.objects()
+	queryDict = {}
+	if fromStationCode:
+		queryDict['fromStationCode'] = fromStationCode
+
+	if toStationCode:
+		queryDict['toStationCode'] = toStationCode
+
+	recordSet = TrainConnectionRecord.objects(__raw__=queryDict)
 
 	for connection in recordSet:
 		fromStation = stationManager.findStation(code=connection.fromStationCode)
