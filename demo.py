@@ -112,7 +112,7 @@ def connect():
 				# path[index] = {"desc": desc}
 
 		def cmp(p1, p2):
-			if (p1['arrTrains']+p1['depTrains']) - (p2['arrTrains']+p2['depTrains'])> 0:
+			if (p1['arrTrains']*p1['depTrains']) - (p2['arrTrains']*p2['depTrains'])> 0:
 				return -1
 			else:
 				return 1
