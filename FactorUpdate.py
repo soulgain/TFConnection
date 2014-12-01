@@ -15,8 +15,10 @@ stationManager.load()
 def distance_between(station1, station2):
 	location_key = 'location'
 
-	if location_key in station1 and location_key in station2:
+	try:
 		return calcu_distance(station1['location'], station2['location'])
+	except:
+		return
 
 
 def updateFactor():
