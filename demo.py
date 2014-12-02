@@ -83,11 +83,11 @@ def connect():
 	fromStationCode = fromStation['code']
 	toStationCode = toStation['code']
 
-	if 'mainStation' in fromStation:
-		fromStationCode = fromStation['mainStation']
+	if 'mainStationCode' in fromStation:
+		fromStationCode = fromStation['mainStationCode']
 
-	if 'mainStation' in toStation:
-		toStationCode = toStation['mainStation']
+	if 'mainStationCode' in toStation:
+		toStationCode = toStation['mainStationCode']
 
 	connection_set = DBModel.TrainConnectionRecord.objects(__raw__={'fromStationCode':fromStationCode, 'toStationCode':toStationCode})
 
