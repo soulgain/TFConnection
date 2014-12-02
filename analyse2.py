@@ -57,7 +57,7 @@ def init_table():
 
         for tr in set:
             toStation = stationManager.findStation(code=tr.toStationCode)
-            if toStation['mainStationCode'] == station['code']:
+            if toStation and toStation['mainStationCode'] == station['code']:
                 set.remove(tr)
 
         tmp = {}
