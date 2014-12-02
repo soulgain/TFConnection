@@ -55,6 +55,11 @@ def init_table():
             for nearStationCode in nearStations:
                 set += [tr for tr in TrainRecord.objects(fromStationCode=nearStationCode)]
 
+        for tr in set:
+            toStation = stationManager.findStation(code=tr.toStationCode)
+            if toStation['mainStationCode'] == station['code']:
+                set.remove(tr)
+
         tmp = {}
 
         for train in set:
