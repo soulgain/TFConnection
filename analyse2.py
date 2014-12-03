@@ -55,11 +55,6 @@ def init_table():
             for nearStationCode in nearStations:
                 set += [tr for tr in TrainRecord.objects(fromStationCode=nearStationCode)]
 
-        for tr in set:
-            toStation = stationManager.findStation(code=tr.toStationCode)
-            if toStation and toStation['mainStationCode'] == station['mainStationCode']:
-                set.remove(tr)
-
         tmp = {}
 
         for train in set:
@@ -75,7 +70,7 @@ def init_table():
             tmp[toStationCode][train['trainno']] = 1
 
         for toStationCode in tmp:
-            if toStationCode in cache_code_to_index:
+            if toStationCode in cache_code_to_index and index!=cache_code_to_index[toStationCode]:
                 table.set(index, cache_code_to_index[toStationCode], tmp[toStationCode].keys())
 
 
