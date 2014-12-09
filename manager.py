@@ -6,7 +6,11 @@ import mongoengine
 import Queue
 import plistlib
 from api import TrainQuery
+from api import TrainStopQuery
 from DBModel import TrainRecord
+from DBModel import TrainStopRecord
+from StationManager import StationManager
+import datetime
 
 
 class Worker(threading.Thread):
@@ -20,7 +24,8 @@ class Worker(threading.Thread):
 				fromStationCode, toStationCode = self.taskQueue.get(False)
 				# print(fromStationCode+'-'+toStationCode
 				# continue
-				trainDTOs = TrainQuery(fromStationCode, toStationCode).query()
+				date = (datetime.date.today()+datetime.timedelta(days=15)).isoformat()
+				trainDTOs = TrainQuery(fromStationCode, toStationCode, date=date).query()
 
 				if not trainDTOs:
 					continue
@@ -29,6 +34,25 @@ class Worker(threading.Thread):
 					tr = TrainRecord()
 					tr.parse(trainDTO)
 					tr.put()
+
+					try:
+						rset = TrainStopRecord.objects(trainId=tr.trainid)
+						if rset.count() == 0:
+							r = TrainStopQuery(fromStationCode=fromStationCode,
+										   toStationCode=toStationCode,
+										   trainid=tr.trainid,
+										   date=date).query()
+
+							if not r or len(r)==0:
+								continue
+
+							tsr = TrainStopRecord()
+							tsr.trainId = tr.trainid
+							tsr.trainNo = tr.trainno
+							tsr.stops = r
+							tsr.put()
+					except Exception as e:
+						print(e)
 
 			except Queue.Empty:
 				break
@@ -51,13 +75,6 @@ class Manager(object):
 
 		for worker in threads:
 			worker.join()
-		
-
-def readStationList():
-	bundle = plistlib.readPlist('StationList.plist')
-	stations = bundle['stations']
-
-	return stations
 
 
 if __name__ == '__main__':
@@ -67,7 +84,9 @@ if __name__ == '__main__':
 	# worker_num maybe more
 	manager = Manager(worker_num=20)
 
-	stations = readStationList()
+	stationManager = StationManager()
+	stationManager.load()
+	stations = stationManager.stations
 
 	for fromStation in stations[:]:
 		for toStation in stations:
