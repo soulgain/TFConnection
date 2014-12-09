@@ -51,10 +51,7 @@ class TrainStopQuery(object):
 		self.trainid = trainid
 		self.fromStationCode = fromStationCode
 		self.toStationCode = toStationCode
-		if date == None:
-			self.date = (datetime.date.today()+datetime.timedelta(days=15)).isoformat()
-		else:
-			self.date = date
+		self.date = date
 
 	def query(self):
 		url = 'https://kyfw.12306.cn/otn/czxx/queryByTrainNo?train_no=%s&from_station_telecode=%s&to_station_telecode=%s&depart_date=%s' % (self.trainid, self.fromStationCode, self.toStationCode, self.date)
