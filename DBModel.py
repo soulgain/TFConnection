@@ -152,5 +152,33 @@ class TrainConnectionRecord(mongoengine.Document):
 		return self.fromStationCode+'->'+self.toStationCode+'\n'+str(self.paths)
 
 
+class TrainStopRecord(mongoengine.Document):
+	trainNo = mongoengine.StringField(required=True)
+	trainId = mongoengine.StringField(required=True)
+	stops = mongoengine.ListField(required=True)
+	meta = {
+		'collection': 'TrainStopRecord',
+		'index_background': True,
+		'indexes': [
+			('trainNo',),
+            ('trainId',)
+        ]
+	}
+
+	def put(self):
+		rset = TrainStopRecord.objects(trainNo=self.trainNo).count()
+
+		if rset.count() > 0:
+			r = rset.first()
+			r.trainId = self.trainId
+			r.stops = self.stops
+			r.save()
+
+			for i in xrange(1, rset.count()):
+				rset[i].delete()
+		else:
+			self.save()
+
+
 if __name__ == '__main__':
 	pass
