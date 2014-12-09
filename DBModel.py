@@ -166,7 +166,7 @@ class TrainStopRecord(mongoengine.Document):
 	}
 
 	def put(self):
-		rset = TrainStopRecord.objects(trainNo=self.trainNo).count()
+		rset = TrainStopRecord.objects(trainNo=self.trainNo)
 
 		if rset.count() > 0:
 			r = rset.first()
