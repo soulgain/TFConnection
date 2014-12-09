@@ -44,11 +44,20 @@ class Path(object):
 		return str(self.arrTrains)+'|'+self.connectStationCode+'|'+str(self.depTrains)
 
 
-class TrainRecord(mongoengine.Document):
+class TrainRecord(mongoengine.DynamicDocument):
 	trainno = mongoengine.StringField(required = True)
 	trainid = mongoengine.StringField(required = True)
 	fromStationCode = mongoengine.StringField(required = True)
 	toStationCode = mongoengine.StringField(required = True)
+	meta = {
+		'collection': 'TrainRecord',
+		'index_background': True,
+		'indexes': [
+            ('trainno', 'fromStationCode', 'toStationCode'),
+			('trainno',),
+        ]
+	}
+	_inner_record = None
 
 	'''
 		parse from a trainDTO json struct
@@ -58,11 +67,52 @@ class TrainRecord(mongoengine.Document):
 		self.trainid = trainDTO['train_no']
 		self.fromStationCode = trainDTO['from_station_telecode']
 		self.toStationCode = trainDTO['to_station_telecode']
+		rset = TrainRecord.objects(trainno=self.trainno, fromStationCode=self.fromStationCode, toStationCode=self.toStationCode)
+		if rset.count():
+			self._inner_record = rset.first()
+
+		if self._inner_record:
+			self._inner_record.fromStationName = trainDTO['from_station_name']
+			self._inner_record.toStationName = trainDTO['to_station_name']
+			# addition
+			self._inner_record.startStationCode = trainDTO['start_station_telecode']
+			self._inner_record.startStationName = trainDTO['start_station_name']
+			self._inner_record.endStationCode = trainDTO['end_station_telecode']
+			self._inner_record.endStationName = trainDTO['end_station_name']
+			self._inner_record.startTime = trainDTO['start_time']
+			self._inner_record.arriveTime = trainDTO['arrive_time']
+			self._inner_record.dayDifference = trainDTO['day_difference']
+			self._inner_record.trainClassName = trainDTO['train_class_name']
+			self._inner_record.durationTime = trainDTO['lishi']
+			self._inner_record.durationMinutes = trainDTO['lishiValue']
+			self._inner_record.seatTypes = trainDTO['seat_types']
+			self._inner_record.fromStationNo = trainDTO['from_station_no']
+			self._inner_record.toStationNo = trainDTO['to_station_no']
+			self._inner_record.saleTime = trainDTO['sale_time']
+		else:
+			# supply
+			self.fromStationName = trainDTO['from_station_name']
+			self.toStationName = trainDTO['to_station_name']
+			# addition
+			self.startStationCode = trainDTO['start_station_telecode']
+			self.startStationName = trainDTO['start_station_name']
+			self.endStationCode = trainDTO['end_station_telecode']
+			self.endStationName = trainDTO['end_station_name']
+			self.startTime = trainDTO['start_time']
+			self.arriveTime = trainDTO['arrive_time']
+			self.dayDifference = trainDTO['day_difference']
+			self.trainClassName = trainDTO['train_class_name']
+			self.durationTime = trainDTO['lishi']
+			self.durationMinutes = trainDTO['lishiValue']
+			self.seatTypes = trainDTO['seat_types']
+			self.fromStationNo = trainDTO['from_station_no']
+			self.toStationNo = trainDTO['to_station_no']
+			self.saleTime = trainDTO['sale_time']
 
 	def put(self):
-		recordSet = TrainRecord.objects(trainno=self.trainno, fromStationCode=self.fromStationCode, toStationCode=self.toStationCode)
-
-		if not recordSet.count():
+		if self._inner_record:
+			self._inner_record.save()
+		else:
 			self.save()
 
 	def __repr__(self):
