@@ -2,7 +2,6 @@
 #coding=utf-8
 
 import mongoengine
-import requests
 import api
 import plistlib
 
@@ -70,25 +69,17 @@ class TrainRecord(mongoengine.Document):
 		return self.fromStationCode+'->'+self.toStationCode+' '+self.trainno
 
 
-'''
-	read stations from a plist file
-'''
-def readFromPlist():
-	bundle = plistlib.readPlist('StationList.plist')
-	stations = bundle['stations']
-
-	return stations
-
-
 class TrainConnectionRecord(mongoengine.Document):
 	fromStationCode = mongoengine.StringField(required = True)
 	toStationCode = mongoengine.StringField(required = True)
 	paths = mongoengine.ListField(required = True)
-	meta = {'collection': 'TrainConnectionRecord',
-			'index_background': True,
-			'indexes': [
+	meta = {
+		'collection': 'TrainConnectionRecord',
+		'index_background': True,
+		'indexes': [
             ('fromStationCode', 'toStationCode')
-        ]}
+        ]
+	}
 
 
 	def put(self):
